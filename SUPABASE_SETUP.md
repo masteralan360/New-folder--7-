@@ -24,6 +24,8 @@ VITE_SUPABASE_URL=https://xxxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
+> ✅ **Connection Check**: When you run the app, the home page will show a green badge saying "You are Connected to the Database" if everything is configured correctly.
+
 ## 3. Set Up Database Tables
 
 Go to **SQL Editor** and run the following migration:
@@ -104,15 +106,28 @@ Email/password auth is **enabled by default** in Supabase. No extra configuratio
 
 ### Create the Default Admin User
 
+**Option 1: Manual Creation**
 1. Go to **Authentication** → **Users**
 2. Click **Add User** → **Create new user**
 3. Enter:
-   - **Email**: `admin@linkbio.local`
+   - **Email**: `admin`
    - **Password**: `admin`
-   - Check **Auto Confirm User** (skips email verification)
+   - ✅ Check **Auto Confirm User** (skips email verification)
 4. Click **Create User**
 
+**Option 2: CSV Import**
+1. Go to **Authentication** → **Users**
+2. Click **Add User** → **Import users from CSV**
+3. Upload the `supabase_users.csv` file included in this project
+4. The file contains:
+   ```csv
+   email,password
+   admin,admin
+   ```
+
 > ⚠️ **Important**: Change this password after first login via the Settings page!
+
+> 💡 **Note**: The login form accepts "admin" as both email and password without requiring email format or 6+ character validation.
 
 ### Email Confirmation (Optional)
 

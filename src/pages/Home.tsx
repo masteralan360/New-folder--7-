@@ -1,14 +1,61 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
-import { Link2, ArrowRight, Sparkles, Shield, Zap } from 'lucide-react';
+import { Link2, ArrowRight, Sparkles, Shield, Zap, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
+import { checkDatabaseConnection, isSupabaseConfigured } from '@/lib/supabase';
 
 export function Home() {
     const { user } = useAuth();
+    const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+
+    useEffect(() => {
+        // Check database connection on startup
+        const checkConnection = async () => {
+            if (!isSupabaseConfigured) {
+                setConnectionStatus('disconnected');
+                return;
+            }
+
+            const isConnected = await checkDatabaseConnection();
+            setConnectionStatus(isConnected ? 'connected' : 'disconnected');
+        };
+
+        checkConnection();
+    }, []);
 
     return (
         <div className="space-y-24 py-12">
+            {/* Database Connection Status */}
+            <div className="flex justify-center">
+                <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${connectionStatus === 'checking'
+                        ? 'border border-border bg-muted text-muted-foreground'
+                        : connectionStatus === 'connected'
+                            ? 'border border-green-500/30 bg-green-500/10 text-green-500'
+                            : 'border border-destructive/30 bg-destructive/10 text-destructive'
+                    }`}>
+                    {connectionStatus === 'checking' && (
+                        <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span>Checking database connection...</span>
+                        </>
+                    )}
+                    {connectionStatus === 'connected' && (
+                        <>
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span>You are Connected to the Database</span>
+                        </>
+                    )}
+                    {connectionStatus === 'disconnected' && (
+                        <>
+                            <XCircle className="h-4 w-4" />
+                            <span>Not connected to database - Check your .env file</span>
+                        </>
+                    )}
+                </div>
+            </div>
+
             {/* Hero Section */}
             <section className="text-center">
                 <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm">

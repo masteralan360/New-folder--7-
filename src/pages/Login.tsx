@@ -12,9 +12,16 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 
+// Custom schema that allows "admin" as special credentials
 const emailSchema = z.object({
-    email: z.string().email('Please enter a valid email'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
+    email: z.string().refine(
+        (val) => val === 'admin' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+        'Please enter a valid email (or "admin" for test account)'
+    ),
+    password: z.string().refine(
+        (val) => val === 'admin' || val.length >= 6,
+        'Password must be at least 6 characters (or "admin" for test account)'
+    ),
 });
 
 type EmailFormData = z.infer<typeof emailSchema>;
@@ -30,7 +37,7 @@ export function Login() {
     const form = useForm<EmailFormData>({
         resolver: zodResolver(emailSchema),
         defaultValues: {
-            email: 'admin@linkbio.local',
+            email: 'admin',
             password: 'admin',
         },
     });
@@ -104,8 +111,8 @@ export function Login() {
                             <Label htmlFor="email">Email</Label>
                             <Input
                                 id="email"
-                                type="email"
-                                placeholder="admin@linkbio.local"
+                                type="text"
+                                placeholder="admin or your@email.com"
                                 {...form.register('email')}
                             />
                             {form.formState.errors.email && (
@@ -119,7 +126,7 @@ export function Login() {
                                 <Input
                                     id="password"
                                     type={showPassword ? 'text' : 'password'}
-                                    placeholder="••••••"
+                                    placeholder="admin or 6+ characters"
                                     {...form.register('password')}
                                 />
                                 <Button
@@ -212,7 +219,7 @@ export function Login() {
                     </div>
 
                     <p className="text-center text-xs text-muted-foreground">
-                        Default test account: <strong>admin@linkbio.local</strong> / <strong>admin</strong>
+                        Default test account: <strong>admin</strong> / <strong>admin</strong>
                     </p>
                 </CardContent>
             </Card>
