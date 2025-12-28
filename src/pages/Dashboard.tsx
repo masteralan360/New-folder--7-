@@ -145,8 +145,9 @@ export function Dashboard() {
                 await createProfile.mutateAsync(data);
             }
             setShowProfileSetup(false);
-            // Reload to get updated profile
-            window.location.reload();
+            // Redirect to home then back to dashboard to refresh state
+            setLocation('/');
+            setTimeout(() => setLocation('/dashboard'), 100);
         } catch (error) {
             console.error('Failed to save profile:', error);
         }
