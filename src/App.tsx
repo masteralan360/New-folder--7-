@@ -6,6 +6,7 @@ import { Home } from '@/pages/Home';
 import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import { Profile } from '@/pages/Profile';
+import { Settings } from '@/pages/Settings';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,6 +26,7 @@ function App() {
             <Route path="/" component={Home} />
             <Route path="/login" component={Login} />
             <Route path="/dashboard" component={Dashboard} />
+            <Route path="/settings" component={Settings} />
             <Route path="/:username" component={Profile} />
           </Switch>
         </Layout>

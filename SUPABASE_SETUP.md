@@ -64,49 +64,66 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.links ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
--- Anyone can view profiles (for public profile pages)
 CREATE POLICY "Profiles are viewable by everyone" 
   ON public.profiles FOR SELECT 
   USING (true);
 
--- Users can insert their own profile
 CREATE POLICY "Users can insert own profile" 
   ON public.profiles FOR INSERT 
   WITH CHECK (auth.uid() = id);
 
--- Users can update their own profile
 CREATE POLICY "Users can update own profile" 
   ON public.profiles FOR UPDATE 
   USING (auth.uid() = id);
 
 -- Links policies
--- Anyone can view active links (for public profile pages)
 CREATE POLICY "Public can view active links" 
   ON public.links FOR SELECT 
   USING (is_active = true);
 
--- Authenticated users can view all their own links
 CREATE POLICY "Users can view own links" 
   ON public.links FOR SELECT 
   USING (auth.uid() = user_id);
 
--- Users can insert their own links
 CREATE POLICY "Users can insert own links" 
   ON public.links FOR INSERT 
   WITH CHECK (auth.uid() = user_id);
 
--- Users can update their own links
 CREATE POLICY "Users can update own links" 
   ON public.links FOR UPDATE 
   USING (auth.uid() = user_id);
 
--- Users can delete their own links
 CREATE POLICY "Users can delete own links" 
   ON public.links FOR DELETE 
   USING (auth.uid() = user_id);
 ```
 
-## 4. Configure OAuth Providers
+## 4. Enable Email/Password Authentication
+
+Email/password auth is **enabled by default** in Supabase. No extra configuration needed!
+
+### Create the Default Admin User
+
+1. Go to **Authentication** → **Users**
+2. Click **Add User** → **Create new user**
+3. Enter:
+   - **Email**: `admin@linkbio.local`
+   - **Password**: `admin`
+   - Check **Auto Confirm User** (skips email verification)
+4. Click **Create User**
+
+> ⚠️ **Important**: Change this password after first login via the Settings page!
+
+### Email Confirmation (Optional)
+
+By default, Supabase requires email confirmation. To disable for testing:
+
+1. Go to **Authentication** → **Providers** → **Email**
+2. Toggle OFF **Confirm Email**
+
+For production, keep email confirmation ON.
+
+## 5. Configure OAuth Providers (Optional)
 
 ### Google OAuth
 
@@ -119,7 +136,6 @@ CREATE POLICY "Users can delete own links"
    ```
    https://xxxxx.supabase.co/auth/v1/callback
    ```
-   (Replace `xxxxx` with your Supabase project ID)
 7. Copy the **Client ID** and **Client Secret**
 8. In Supabase, go to **Authentication** → **Providers** → **Google**
 9. Enable Google and paste your credentials
@@ -130,7 +146,7 @@ CREATE POLICY "Users can delete own links"
 2. Click **OAuth Apps** → **New OAuth App**
 3. Fill in:
    - Application name: `LinkBio`
-   - Homepage URL: `https://your-domain.com` (or `http://localhost:5173` for dev)
+   - Homepage URL: `https://your-domain.com`
    - Authorization callback URL:
      ```
      https://xxxxx.supabase.co/auth/v1/callback
@@ -139,7 +155,7 @@ CREATE POLICY "Users can delete own links"
 5. In Supabase, go to **Authentication** → **Providers** → **GitHub**
 6. Enable GitHub and paste your credentials
 
-## 5. Configure Site URL
+## 6. Configure Site URL
 
 1. In Supabase, go to **Authentication** → **URL Configuration**
 2. Set **Site URL** to your production URL (e.g., `https://your-app.vercel.app`)
@@ -147,7 +163,7 @@ CREATE POLICY "Users can delete own links"
    - `http://localhost:5173/**` (for local development)
    - `https://your-app.vercel.app/**` (for production)
 
-## 6. Run the App Locally
+## 7. Run the App Locally
 
 ```bash
 # Copy env example if you haven't
@@ -158,14 +174,16 @@ cp .env.example .env
 npm run dev
 ```
 
-## 7. Deploy to Vercel
+## 8. Default Login Credentials
 
-1. Push your code to GitHub
-2. Go to [vercel.com](https://vercel.com) and import your repo
-3. Add environment variables:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-4. Deploy!
+The app comes with a pre-filled login form:
+
+| Field | Value |
+|-------|-------|
+| Email | `admin@linkbio.local` |
+| Password | `admin` |
+
+After logging in, go to **Settings** to change your email and password.
 
 ## Troubleshooting
 
@@ -174,19 +192,18 @@ npm run dev
 - Check that variables start with `VITE_`
 - Restart the dev server after adding variables
 
+### "Invalid login credentials"
+- Make sure you created the admin user in Supabase
+- Check that **Auto Confirm User** was enabled
+- Verify the email/password match exactly
+
 ### OAuth redirects to wrong URL
 - Check **Site URL** in Supabase Auth settings
 - Verify redirect URLs include your domain with `/**`
-- Make sure OAuth callback URLs are correctly configured
-
-### "User not found" or RLS errors
-- Profile must be created before adding links
-- Check that RLS policies were applied correctly
-- Verify the user is authenticated before making requests
 
 ## Security Notes
 
 - Never expose the `service_role` key in the frontend
 - The `anon` key is safe to use client-side with RLS enabled
+- Change the default admin password after first login!
 - All sensitive operations are protected by Row Level Security
-- Users can only access their own data

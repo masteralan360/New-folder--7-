@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link as WouterLink } from 'wouter';
-import { Link2, LogOut, LayoutDashboard } from 'lucide-react';
+import { Link2, LogOut, LayoutDashboard, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
@@ -25,18 +25,24 @@ export function Layout({ children }: LayoutProps) {
                             </span>
                         </WouterLink>
 
-                        <nav className="flex items-center gap-4">
+                        <nav className="flex items-center gap-2">
                             {user ? (
                                 <>
                                     <WouterLink href="/dashboard">
                                         <Button variant="ghost" size="sm" className="gap-2">
                                             <LayoutDashboard className="h-4 w-4" />
-                                            Dashboard
+                                            <span className="hidden sm:inline">Dashboard</span>
+                                        </Button>
+                                    </WouterLink>
+                                    <WouterLink href="/settings">
+                                        <Button variant="ghost" size="sm" className="gap-2">
+                                            <Settings className="h-4 w-4" />
+                                            <span className="hidden sm:inline">Settings</span>
                                         </Button>
                                     </WouterLink>
                                     <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
                                         <LogOut className="h-4 w-4" />
-                                        Sign Out
+                                        <span className="hidden sm:inline">Sign Out</span>
                                     </Button>
                                 </>
                             ) : (
